@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
+const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/+$/, "");
+
 function Post({ post }) {
   const navigate = useNavigate();
   
@@ -8,10 +10,14 @@ function Post({ post }) {
   };
 
   const handleDelete = async () => {
-    await fetch(`http://localhost:3000/api/v1/posts/${post._id}`, {
-      method: "DELETE",
-    });
-    window.location.reload();
+    try {
+      await fetch(`${API_BASE}/api/v1/posts/${post._id}`, {
+        method: "DELETE",
+      });
+      window.location.reload();
+    } catch (err) {
+      console.error("Failed to delete post:", err);
+    }
   };
 
   return (

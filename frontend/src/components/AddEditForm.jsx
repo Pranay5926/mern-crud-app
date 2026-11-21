@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/+$/, "");
+
 function AddEditForm() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -10,10 +12,16 @@ function AddEditForm() {
   useEffect(() => {
     if (id) {
       async function fetchPost() {
-        const response = await fetch(`http://localhost:3000/api/v1/posts/${id}`);
-        const data = await response.json();
-        setTitle(data.data.title);
-        setContent(data.data.content);
+        try {
+          const response = await fetch(`${API_BASE}/api/v1/posts/${id}`);
+          const data = await response.json();
+          if (data && data.data) {
+            setTitle(data.data.title || "");
+            setContent(data.data.content || "");
+          }
+        } catch (err) {
+          console.error("Failed to fetch post:", err);
+        }
       }
       fetchPost();
     }
@@ -23,8 +31,8 @@ function AddEditForm() {
     e.preventDefault();
     const method = id ? "PUT" : "POST";
     const url = id
-      ? `http://localhost:3000/api/v1/posts/${id}`
-      : "http://localhost:3000/api/v1/posts";
+      ? `${API_BASE}/api/v1/posts/${id}`
+      : `${API_BASE}/api/v1/posts`;
     await fetch(url, {
       method,
       headers: {
